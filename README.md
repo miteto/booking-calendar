@@ -126,6 +126,7 @@ Key configuration variables in your `.env` or `.env.local`:
 
 - `app:create-user <email> <password>`: Creates a new user with administrative privileges.
 - `app:generate-slots [--months=N] [--from=YYYY-MM-DD]`: Generates time slots based on `SlotConfig`.
+- `app:delete-old-slots`: Deletes all time slots older than today.
 - `app:notify-bookings`: Checks for upcoming bookings and sends email reminders. This should be scheduled via a cron job (e.g., every 5 minutes).
 
 ## Running Tests
