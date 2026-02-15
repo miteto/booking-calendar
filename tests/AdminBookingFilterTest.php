@@ -58,8 +58,8 @@ class AdminBookingFilterTest extends WebTestCase
         $this->createBooking('2025-01-02', 'Jane Smith', 'jane@example.com', '654321');
         $this->createBooking('2025-02-01', 'Alice Brown', 'alice@example.com', '111222');
 
-        // Add more for pagination (limit is 10)
-        for ($i = 1; $i <= 10; $i++) {
+        // Add more for pagination (limit is 20)
+        for ($i = 1; $i <= 20; $i++) {
             $this->createBooking('2025-03-01', "User $i", "user$i@example.com", "999$i");
         }
 
@@ -74,10 +74,10 @@ class AdminBookingFilterTest extends WebTestCase
         $this->assertResponseRedirects('/en/admin');
         $client->followRedirect();
 
-        // 1. Test no filters (should see first 10)
+        // 1. Test no filters (should see first 20)
         $this->assertSelectorExists('table tbody tr');
         $rows = $client->getCrawler()->filter('table tbody tr');
-        $this->assertEquals(10, count($rows));
+        $this->assertEquals(20, count($rows));
 
         // 2. Test date filter
         $client->request('GET', '/en/admin?from=2025-01-01&to=2025-01-31');
@@ -111,7 +111,7 @@ class AdminBookingFilterTest extends WebTestCase
 
         $client->clickLink('2');
         $rows = $client->getCrawler()->filter('table tbody tr');
-        // Total bookings: 3 + 10 = 13. Page 1 has 10, Page 2 should have 3.
+        // Total bookings: 3 + 20 = 23. Page 1 has 20, Page 2 should have 3.
         $this->assertEquals(3, count($rows));
     }
 }

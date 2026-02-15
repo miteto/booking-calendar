@@ -167,28 +167,6 @@ class AdminController extends AbstractController
         ]);
     }
 
-    #[Route('/availability/{date}', name: 'app_admin_availability', defaults: ['date' => null])]
-    public function availability(?string $date, Request $request, SlotRepository $slotRepository, BookingRepository $bookingRepository): Response
-    {
-        $date = $date ? new \DateTime($date) : new \DateTime('today');
-        $date->setTime(0, 0, 0);
-
-        $slots = $slotRepository->findByDate($date);
-
-        // index bookings by start time (H:i:s) for quick lookups in template
-        $bookings = $bookingRepository->findBy(['date' => $date]);
-        $bookedTimes = [];
-        foreach ($bookings as $b) {
-            $bookedTimes[$b->getStartTime()->format('H:i:s')] = true;
-        }
-
-        return $this->render('admin/availability.html.twig', [
-            'date' => $date,
-            'slots' => $slots,
-            'bookedTimes' => $bookedTimes,
-        ]);
-    }
-
     #[Route('/availability/block-day', name: 'app_admin_block_day', methods: ['POST'])]
     public function blockDay(Request $request, SlotRepository $slotRepository, EntityManagerInterface $em, TranslatorInterface $translator): Response
     {
@@ -226,6 +204,29 @@ class AdminController extends AbstractController
         $this->addFlash('success', $block ? $translator->trans('admin.slot_blocked') : $translator->trans('admin.slot_unblocked'));
 
         return $this->redirectToRoute('app_admin_availability', ['date' => $date]);
+    }
+
+    #[Route('/availability/{date}', name: 'app_admin_availability', defaults: ['date' => null])]
+    public function availability(?string $date, Request $request, SlotRepository $slotRepository, BookingRepository $bookingRepository): Response
+    {
+        $date = $date ?: $request->query->get('date');
+        $dateObj = $date ? new \DateTime($date) : new \DateTime('today');
+        $dateObj->setTime(0, 0, 0);
+
+        $slots = $slotRepository->findByDate($dateObj);
+
+        // index bookings by start time (H:i:s) for quick lookups in template
+        $bookings = $bookingRepository->findBy(['date' => $dateObj]);
+        $bookedTimes = [];
+        foreach ($bookings as $b) {
+            $bookedTimes[$b->getStartTime()->format('H:i:s')] = true;
+        }
+
+        return $this->render('admin/availability.html.twig', [
+            'date' => $dateObj,
+            'slots' => $slots,
+            'bookedTimes' => $bookedTimes,
+        ]);
     }
 
     #[Route('/generate-slots', name: 'app_admin_generate_slots')]
