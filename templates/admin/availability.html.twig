@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'nav.availability'|trans }}{% endblock %}
+
+{% block body %}
+    <h1>{{ 'nav.availability'|trans }}</h1>
+
+    <form method="get" action="{{ path('app_admin_availability') }}" class="row g-3 align-items-end mt-3">
+        <div class="col-auto">
+            <label for="date" class="form-label">{{ 'admin.date'|trans }}</label>
+            <input type="date" id="date" name="date" value="{{ date|date('Y-m-d') }}" class="form-control" />
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary">{{ 'admin.load'|trans }}</button>
+        </div>
+    </form>
+
+    <div class="d-flex gap-2 mt-3">
+        <form method="post" action="{{ path('app_admin_block_day') }}">
+            <input type="hidden" name="date" value="{{ date|date('Y-m-d') }}" />
+            <input type="hidden" name="block" value="1" />
+            <button class="btn btn-danger" onclick="return confirm('{{ 'admin.blocked_day'|trans }}');">{{ 'admin.blocked_day'|trans }}</button>
+        </form>
+        <form method="post" action="{{ path('app_admin_block_day') }}">
+            <input type="hidden" name="date" value="{{ date|date('Y-m-d') }}" />
+            <input type="hidden" name="block" value="0" />
+            <button class="btn btn-success">{{ 'admin.unblocked_day'|trans }}</button>
+        </form>
+    </div>
+
+    <table class="table table-striped mt-4">
+        <thead>
+            <tr>
+                <th>{{ 'admin.time'|trans }}</th>
+                <th>{{ 'admin.status'|trans }}</th>
+                <th>{{ 'admin.actions'|trans }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for slot in slots %}
+                <tr>
+                    <td>{{ slot.startTime|date('H:i') }} - {{ slot.endTime|date('H:i') }}</td>
+                    <td>
+                        {% set key = slot.startTime|date('H:i:s') %}
+                        {% if slot.blocked %}
+                            <span class="badge text-bg-danger">{{ 'admin.slot_blocked'|trans }}</span>
+                        {% elseif bookedTimes is defined and bookedTimes[key] is defined %}
+                            <span class="badge text-bg-warning">{{ 'admin.booked'|trans }}</span>
+                        {% else %}
+                            <span class="badge text-bg-success">{{ 'admin.active'|trans }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="d-flex gap-2">
+                        {% if not slot.blocked %}
+                            <form method="post" action="{{ path('app_admin_toggle_slot', {id: slot.id}) }}">
+                                <input type="hidden" name="date" value="{{ date|date('Y-m-d') }}" />
+                                <input type="hidden" name="block" value="1" />
+                                <button class="btn btn-sm btn-danger">{{ 'admin.slot_blocked'|trans }}</button>
+                            </form>
+                        {% else %}
+                            <form method="post" action="{{ path('app_admin_toggle_slot', {id: slot.id}) }}">
+                                <input type="hidden" name="date" value="{{ date|date('Y-m-d') }}" />
+                                <input type="hidden" name="block" value="0" />
+                                <button class="btn btn-sm btn-success">{{ 'admin.slot_unblocked'|trans }}</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="3" class="text-center">{{ 'booking.no_slots'|trans }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

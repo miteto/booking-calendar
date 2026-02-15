@@ -1,0 +1,95 @@
+:root {
+  --primary: #f82249;
+  --primary-600: #d61a3d;
+  --accent: #6f42c1;
+  --bg: #fef2f4;
+  --card-bg: #ffffff;
+  --border: #e6e9ef;
+  --text: #212529;
+  --muted: #6c757d;
+}
+
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/*********************
+  Global polish
+*********************/
+.container, .container-fluid {
+  /* Slightly increase default max width feel */
+}
+
+/*********************
+  Navbar
+*********************/
+.navbar-dark.bg-dark {
+  box-shadow: 0 2px 16px rgba(248, 34, 73, 0.08);
+}
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: .2px;
+}
+
+/*********************
+  Buttons
+*********************/
+.btn-outline-primary {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+.btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.btn-primary:hover,
+.btn-primary:focus {
+  background: var(--primary-600);
+  border-color: var(--primary-600);
+}
+
+/*********************
+  Cards & Tables
+*********************/
+.table thead th {
+  background: #fef2f4;
+  border-bottom: 2px solid var(--border) !important;
+}
+.table tbody tr:hover {
+  background: rgba(248, 34, 73, 0.03);
+}
+
+/*********************
+  Badges
+*********************/
+.badge.text-bg-success { background-color: #1aa179 !important; }
+.badge.text-bg-danger { background-color: #dc3545 !important; }
+.badge.text-bg-warning { background-color: #f59f00 !important; color: #212529; }
+
+/*********************
+  Alerts
+*********************/
+.alert { border: 1px solid var(--border); }
+
+/*********************
+  Modal
+*********************/
+.modal-content { border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,.12); }
+.modal-header { background: var(--primary); color: #fff; }
+.modal-header .btn-close { filter: invert(1) grayscale(100%); }
+.modal-title { font-weight: 600; }
+
+/*********************
+  Admin Settings
+*********************/
+.form-section { margin-bottom: 2rem; }
+textarea.form-control { font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+.ql-container { min-height: 200px; background: #fff; }

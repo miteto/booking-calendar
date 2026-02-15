@@ -1,0 +1,7 @@
+admin:
+  status: 'Status'
+  active: 'Active'
+  booked: 'Booked'
+  load: 'Load'
+  start_time: 'Start Time'
+  end_time: 'End Time'

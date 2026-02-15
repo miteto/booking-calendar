@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'nav.admin_dashboard'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>{{ 'admin.current_bookings'|trans }}</h1>
+        <a href="{{ path('app_admin_booking_add') }}" class="btn btn-success">{{ 'admin.add_booking'|trans }}</a>
+    </div>
+
+    <form method="get" class="row g-3 mt-3 mb-4 align-items-end">
+        <div class="col-md-3">
+            <label for="from" class="form-label">{{ 'admin.filter.from'|trans }}</label>
+            <input type="date" name="from" id="from" class="form-control" value="{{ from }}">
+        </div>
+        <div class="col-md-3">
+            <label for="to" class="form-label">{{ 'admin.filter.to'|trans }}</label>
+            <input type="date" name="to" id="to" class="form-control" value="{{ to }}">
+        </div>
+        <div class="col-md-4">
+            <label for="search" class="form-label">{{ 'admin.filter.search'|trans }}</label>
+            <input type="text" name="search" id="search" class="form-control" placeholder="{{ 'admin.filter.search_placeholder'|trans }}" value="{{ search }}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">{{ 'admin.filter.submit'|trans }}</button>
+        </div>
+    </form>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>{{ 'admin.date'|trans }}</th>
+                <th>{{ 'admin.time'|trans }}</th>
+                <th>{{ 'admin.name'|trans }}</th>
+                <th>{{ 'admin.email'|trans }}</th>
+                <th>{{ 'admin.phone'|trans }}</th>
+                <th>{{ 'admin.locale'|trans }}</th>
+                <th>{{ 'admin.actions'|trans }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.date|date('Y-m-d') }}</td>
+                    <td>{{ booking.startTime|date('H:i') }} - {{ booking.endTime|date('H:i') }}</td>
+                    <td>{{ booking.userName }}</td>
+                    <td>{{ booking.userEmail }}</td>
+                    <td>{{ booking.userPhone }}</td>
+                    <td>{{ booking.locale }}</td>
+                    <td class="d-flex gap-2">
+                        <a href="{{ path('app_admin_booking_edit', {id: booking.id}) }}" class="btn btn-sm btn-warning">{{ 'admin.edit'|trans }}</a>
+                        <form method="post" action="{{ path('app_admin_booking_delete', {id: booking.id}) }}" onsubmit="return confirm('Are you sure?');">
+                            <button class="btn btn-sm btn-danger">{{ 'admin.delete'|trans }}</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="7" class="text-center">{{ 'admin.no_bookings'|trans }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if pagesCount > 1 %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item {{ currentPage == 1 ? 'disabled' : '' }}">
+                    <a class="page-link" href="{{ path('app_admin_dashboard', {page: currentPage - 1, from: from, to: to, search: search}) }}">{{ 'admin.pagination.previous'|trans }}</a>
+                </li>
+                {% for i in 1..pagesCount %}
+                    <li class="page-item {{ i == currentPage ? 'active' : '' }}">
+                        <a class="page-link" href="{{ path('app_admin_dashboard', {page: i, from: from, to: to, search: search}) }}">{{ i }}</a>
+                    </li>
+                {% endfor %}
+                <li class="page-item {{ currentPage == pagesCount ? 'disabled' : '' }}">
+                    <a class="page-link" href="{{ path('app_admin_dashboard', {page: currentPage + 1, from: from, to: to, search: search}) }}">{{ 'admin.pagination.next'|trans }}</a>
+                </li>
+            </ul>
+        </nav>
+    {% endif %}
+{% endblock %}

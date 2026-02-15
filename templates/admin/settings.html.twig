@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'admin.settings.title'|trans }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block body %}
+    <h2 class="mb-3">{{ 'admin.settings.title'|trans }}</h2>
+    <p class="text-muted">{{ 'admin.settings.intro'|trans }}</p>
+
+    {{ form_start(form) }}
+        {{ form_errors(form) }}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-section">
+                    {{ form_label(form.reservation_details_en) }}
+                    {{ form_errors(form.reservation_details_en) }}
+                    {{ form_widget(form.reservation_details_en) }}
+                    {{ form_help(form.reservation_details_en) }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-section">
+                    {{ form_label(form.reservation_details_bg) }}
+                    {{ form_errors(form.reservation_details_bg) }}
+                    {{ form_widget(form.reservation_details_bg) }}
+                    {{ form_help(form.reservation_details_bg) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-section">
+                    {{ form_label(form.email_template_en) }}
+                    {{ form_errors(form.email_template_en) }}
+                    {{ form_widget(form.email_template_en) }}
+                    {{ form_help(form.email_template_en) }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-section">
+                    {{ form_label(form.email_template_bg) }}
+                    {{ form_errors(form.email_template_bg) }}
+                    {{ form_widget(form.email_template_bg) }}
+                    {{ form_help(form.email_template_bg) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-section">
+                    {{ form_label(form.reminder_email_template_en) }}
+                    {{ form_errors(form.reminder_email_template_en) }}
+                    {{ form_widget(form.reminder_email_template_en) }}
+                    {{ form_help(form.reminder_email_template_en) }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-section">
+                    {{ form_label(form.reminder_email_template_bg) }}
+                    {{ form_errors(form.reminder_email_template_bg) }}
+                    {{ form_widget(form.reminder_email_template_bg) }}
+                    {{ form_help(form.reminder_email_template_bg) }}
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">{{ 'admin.settings.save'|trans }}</button>
+    {{ form_end(form) }}
+{% endblock %}

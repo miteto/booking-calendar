@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'nav.generate_slots'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h1>{{ 'admin.generate_slots.title'|trans }}</h1>
+            <p class="text-muted">{{ 'admin.generate_slots.description'|trans }}</p>
+
+            {{ form_start(form, {'attr': {'class': 'mt-4'}}) }}
+                {{ form_errors(form) }}
+                <div class="mb-3">
+                    {{ form_label(form.start_date) }}
+                    {{ form_widget(form.start_date) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_label(form.end_date) }}
+                    {{ form_widget(form.end_date) }}
+                </div>
+                <div class="mb-3 form-check">
+                    {{ form_widget(form.force, {'attr': {'class': 'form-check-input'}}) }}
+                    {{ form_label(form.force, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                    <div class="form-text">{{ form.force.vars.help|trans }}</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">{{ 'admin.generate_slots.submit'|trans }}</button>
+                <a href="{{ path('app_admin_dashboard') }}" class="btn btn-secondary">{{ 'admin.cancel'|trans }}</a>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

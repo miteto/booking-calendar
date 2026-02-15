@@ -1,0 +1,102 @@
+/* Visual polish for calendar and booking */
+
+/* Calendar layout */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+.calendar-header {
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.75rem;
+    padding: 8px 0;
+    background-color: #fef2f4;
+    border-bottom: 1px solid var(--border);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--muted);
+}
+.day-card {
+    width: 100%;
+    text-align: center;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 4px;
+    cursor: pointer;
+    transition: transform .15s ease, box-shadow .2s ease, background .2s ease, color .2s ease;
+    text-decoration: none;
+    color: inherit;
+    min-height: 58px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: var(--card-bg);
+    box-shadow: 0 2px 8px rgba(248, 34, 73, 0.04);
+}
+.day-card:hover:not(.disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(248, 34, 73, 0.12);
+}
+.day-card.active {
+    background: linear-gradient(180deg, rgba(248, 34, 73, .12), rgba(248, 34, 73, .06));
+    color: #d61a3d;
+    border-color: rgba(248, 34, 73, .45);
+}
+.day-card.disabled {
+    background-color: #f8f9fa;
+    color: #c4c8cf;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+.day-card.empty {
+    border: none;
+    cursor: default;
+    background: transparent;
+    box-shadow: none;
+}
+.day-card .day-name { display: none; }
+.day-card .day-number {
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+.month-title { /* retained for potential future use */
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #495057;
+}
+
+/* Slot buttons */
+#slots-container .btn-outline-primary.w-100.py-3 {
+    border-width: 2px;
+    border-radius: 10px;
+}
+#slots-container .btn-outline-primary.w-100.py-3:hover {
+    transform: translateY(-1px);
+}
+
+/* Nav spacer for calendar header */
+.nav-spacer {
+    width: 40px;
+}
+
+/* Embedded view adjustments (apply when body has class .embed) */
+.embed .row.py-3 { padding-top: .5rem !important; padding-bottom: .5rem !important; }
+.embed h2 { font-size: 1.1rem; margin-bottom: .4rem; }
+.embed p { margin-bottom: .5rem; font-size: .95rem; }
+.embed .calendar-grid { gap: 6px; }
+.embed .day-card { min-height: 44px; padding: 6px 2px; border-radius: 8px; }
+.embed .day-card .day-number { font-size: 1rem; }
+.embed .calendar-header { font-size: 0.65rem; padding: 4px 0; }
+.embed .month-title, .embed h4 { margin-top: .5rem; margin-bottom: .3rem; font-size: 1rem; }
+.embed .btn { padding: .35rem .5rem; font-size: .9rem; }
+.embed .btn.py-3 { padding-top: .6rem !important; padding-bottom: .6rem !important; }
+.embed .row.g-3 { --bs-gutter-x: .5rem; --bs-gutter-y: .5rem; }
+.embed .my-4 { margin-top: .5rem !important; margin-bottom: .5rem !important; }
+
+/* Styles previously applied inline only when embedded */
+body.embed { height: 100%; margin: 0; background: transparent; }
+.embed .container { padding-left: 8px; padding-right: 8px; }
+.embed .alert { margin: .5rem 0; padding: .4rem .6rem; font-size: .9rem; }

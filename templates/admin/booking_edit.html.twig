@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ booking.id ? 'admin.edit_booking'|trans : 'admin.add_booking'|trans }}{% endblock %}
+
+{% block body %}
+    <h1>{{ booking.id ? 'admin.edit_booking'|trans : 'admin.add_booking'|trans }}</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            {{ form_start(form) }}
+                {{ form_errors(form) }}
+                <div class="mb-3">
+                    {{ form_label(form.date) }}
+                    {{ form_widget(form.date) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_label(form.startTime) }}
+                    {{ form_widget(form.startTime) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_label(form.endTime) }}
+                    {{ form_widget(form.endTime) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_label(form.userName) }}
+                    {{ form_widget(form.userName) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_label(form.userEmail) }}
+                    {{ form_widget(form.userEmail) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_label(form.userPhone) }}
+                    {{ form_widget(form.userPhone) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_label(form.locale) }}
+                    {{ form_widget(form.locale) }}
+                </div>
+
+                <button type="submit" class="btn btn-primary">{{ 'admin.save_booking'|trans }}</button>
+                <a href="{{ path('app_admin_dashboard') }}" class="btn btn-secondary">{{ 'admin.cancel'|trans }}</a>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

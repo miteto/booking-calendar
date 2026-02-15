@@ -1,0 +1,174 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'booking.title'|trans }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block body %}
+    {% set formattedDate = '' %}
+    <div class="row justify-content-center py-3">
+        <div class="col-md-10">
+            <h2 class="text-center mb-2">{{ 'booking.heading'|trans }}</h2>
+            <p class="text-center text-muted mb-4">{{ 'booking.subheading'|trans }}</p>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                {% if canGoPrev %}
+                    <a href="{{ path('app_home', {month: prevMonth|date('n'), year: prevMonth|date('Y'), embed: app.request.query.get('embed')}) }}" class="btn btn-outline-primary prev-month">&lsaquo;</a>
+                {% else %}
+                    <div class="nav-spacer"></div>
+                {% endif %}
+
+                {% set monthTitle = ('months.' ~ currentMonth|date('n'))|trans %}
+                <h5 class="mb-0">{{ monthTitle }} {{ currentMonth|date('Y') }}</h5>
+
+                <a href="{{ path('app_home', {month: nextMonth|date('n'), year: nextMonth|date('Y'), embed: app.request.query.get('embed')}) }}" class="btn btn-outline-primary next-month">&rsaquo;</a>
+            </div>
+
+            <div class="calendar-grid mb-4">
+                <div class="calendar-header">{{ 'booking.weekday.mon'|trans }}</div>
+                <div class="calendar-header">{{ 'booking.weekday.tue'|trans }}</div>
+                <div class="calendar-header">{{ 'booking.weekday.wed'|trans }}</div>
+                <div class="calendar-header">{{ 'booking.weekday.thu'|trans }}</div>
+                <div class="calendar-header">{{ 'booking.weekday.fri'|trans }}</div>
+                <div class="calendar-header">{{ 'booking.weekday.sat'|trans }}</div>
+                <div class="calendar-header">{{ 'booking.weekday.sun'|trans }}</div>
+
+                {% for day in days %}
+                    {% if day is null %}
+                        <div class="day-card empty"></div>
+                    {% else %}
+                        {% set isActive = selectedDate and selectedDate|date('Y-m-d') == day|date('Y-m-d') %}
+                        {% set isPast = day < today %}
+                        {% set isAvailable = day|date('Y-m-d') in availableDays %}
+                        {% set pathParams = {date: day|date('Y-m-d'), year: currentMonth|date('Y'), month: currentMonth|date('n')} %}
+                        {% if app.request.query.get('embed') %}
+                            {% set pathParams = pathParams|merge({embed: '1'}) %}
+                        {% endif %}
+                        <a href="{{ (isPast or not isAvailable) ? '#' : path('app_home', pathParams) }}"
+                           class="day-card {{ isActive ? 'active' : '' }} {{ (isPast or not isAvailable) ? 'disabled' : '' }}"
+                           id="day-{{ day|date('Y-m-d') }}">
+                            <span class="day-number">{{ day|date('j') }}</span>
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <hr class="my-4">
+
+            {% if selectedDate %}
+                {% set weekdayLong = ('weekday.long.' ~ selectedDate|date('N'))|trans %}
+                {% set monthLong = ('months.' ~ selectedDate|date('n'))|trans %}
+                {% set formattedDate = weekdayLong ~ ', ' ~ monthLong ~ ' ' ~ selectedDate|date('j, Y') %}
+                <div id="slots-container">
+                    <h4 class="text-center mb-4">{{ 'booking.available_for'|trans({'%date%': formattedDate }) }}</h4>
+                    {% if slots|length > 0 %}
+                        <div class="row g-3 justify-content-center">
+                            {% for slot in slots %}
+                                <div class="col-md-3">
+                                    <button type="button" class="btn btn-outline-primary w-100 py-3"
+                                            data-bs-toggle="modal" data-bs-target="#bookModal"
+                                            data-slot-id="{{ slot.id }}"
+                                            data-date="{{ selectedDate|date('Y-m-d') }}"
+                                            data-start="{{ slot.start|date('H:i') }}"
+                                            data-end="{{ slot.end|date('H:i') }}">
+                                        {{ slot.start|date('H:i') }} - {{ slot.end|date('H:i') }}
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning text-center">
+                            {{ 'booking.no_slots'|trans }}
+                        </div>
+                    {% endif %}
+
+                    {# Show existing bookings for the selected date #}
+                    {% if bookings is defined and bookings|length > 0 %}
+                        <div class="mt-4">
+                            <h5 class="text-center">{{ 'booking.already_booked'|trans }}</h5>
+                            <ul class="list-group list-group-flush">
+                                {% for b in bookings %}
+                                    <li class="list-group-item text-center">
+                                        {{ b.startTime|date('H:i') }} - {{ b.endTime|date('H:i') }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="alert alert-info text-center">
+                    {{ 'booking.select_day'|trans }}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div class="modal fade" id="bookModal" tabindex="-1"
+         data-controller="booking-modal"
+         data-action="show.bs.modal->booking-modal#update">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                {{ form_start(form, {'action': path('app_book')}) }}
+                    <div class="modal-header">
+                        <h5 class="modal-title">{{ 'booking.modal.title'|trans({'%date%': formattedDate|default('')}) }} <span data-booking-modal-target="timeRangeLabel"></span></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{ form_errors(form) }}
+                        {{ form_widget(form.date, {'attr': {'id': 'modalDate', 'data-booking-modal-target': 'date', 'value': selectedDate ? selectedDate|date('Y-m-d') : ''}}) }}
+                        {{ form_widget(form.slot_id, {'attr': {'id': 'modalSlotId', 'data-booking-modal-target': 'slotId'}}) }}
+                        {{ form_widget(form.start_time, {'attr': {'id': 'modalStartTime', 'data-booking-modal-target': 'startTime'}}) }}
+                        {{ form_widget(form.end_time, {'attr': {'id': 'modalEndTime', 'data-booking-modal-target': 'endTime'}}) }}
+                        {{ form_widget(form.embed, {'attr': {'id': 'modalEmbed', 'value': app.request.query.get('embed') ? '1' : ''}}) }}
+
+                        <div class="mb-3">
+                            {{ form_label(form.userName, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.userName, {'attr': {'required': 'required'}}) }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form_label(form.userEmail, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.userEmail, {'attr': {'required': 'required'}}) }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form_label(form.userPhone, null, {'label_attr': {'class': 'form-label'}}) }}
+                            {{ form_widget(form.userPhone, {'attr': {'required': 'required'}}) }}
+                        </div>
+
+                        {% if reservationDetails is defined and reservationDetails %}
+                            <hr class="my-3">
+                            <div class="small text-muted" id="reservation-details">{{ reservationDetails|raw }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'booking.form.cancel'|trans }}</button>
+                        <button type="submit" class="btn btn-primary">{{ 'booking.form.confirm'|trans }}</button>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // Initialization logic that needs to run on every (Turbo) load
+            var init = function() {
+                // Scroll to slots if selected
+                {% if selectedDate %}
+                var container = document.getElementById('slots-container');
+                if (container) {
+                    container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                {% endif %}
+            };
+
+            // Run immediately
+            init();
+            // And also on subsequent turbo loads
+            document.addEventListener('turbo:load', init);
+        })();
+    </script>
+{% endblock %}

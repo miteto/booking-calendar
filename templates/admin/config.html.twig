@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'admin.slot_configuration'|trans }}{% endblock %}
+
+{% block body %}
+    <h1>{{ 'admin.slot_configuration'|trans }}</h1>
+    <p class="text-muted">{{ 'admin.config_description'|trans }}</p>
+
+    {{ form_start(form) }}
+        {{ form_errors(form) }}
+        <table class="table mt-4">
+            <thead>
+                <tr>
+                    <th>{{ 'admin.day'|trans }}</th>
+                    <th>{{ 'admin.enabled'|trans }}</th>
+                    <th>{{ 'admin.start_time'|trans }}</th>
+                    <th>{{ 'admin.end_time'|trans }}</th>
+                    <th>{{ 'admin.interval_min'|trans }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for day in days %}
+                    {% set configForm = attribute(form, day) %}
+                    <tr>
+                        <td><strong>{% if day == 'global' %}{{ 'admin.global'|trans }}{% else %}{{ ('admin.day_name.' ~ day)|trans }}{% endif %}</strong></td>
+                        <td>
+                            {{ form_widget(configForm.enabled) }}
+                        </td>
+                        <td>
+                            {{ form_widget(configForm.startTime) }}
+                        </td>
+                        <td>
+                            {{ form_widget(configForm.endTime) }}
+                        </td>
+                        <td>
+                            {{ form_widget(configForm.slotInterval, {'attr': {'style': 'width: 80px;'}}) }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-primary">{{ 'admin.save_configuration'|trans }}</button>
+    {{ form_end(form) }}
+{% endblock %}

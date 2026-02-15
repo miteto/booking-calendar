@@ -1,0 +1,7 @@
+admin:
+  status: 'Статус'
+  active: 'Активен'
+  booked: 'Резервиран'
+  load: 'Зареди'
+  start_time: 'Начален час'
+  end_time: 'Краен час'

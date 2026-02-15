@@ -7,12 +7,20 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    app.admin_email: '%env(ADMIN_EMAIL)%'
+    app.noreply_email: '%env(NOREPLY_EMAIL)%'
+    app.minimum_booking_notice: '%env(int:MINIMUM_BOOKING_NOTICE)%'
+    app.notification_hours: '%env(NOTIFICATION_HOURS)%'
 
 services:
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind:
+            $minimumBookingNotice: '%app.minimum_booking_notice%'
+            $notificationHours: '%app.notification_hours%'
+            $noreplyEmail: '%app.noreply_email%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
