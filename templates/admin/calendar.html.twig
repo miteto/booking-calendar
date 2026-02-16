@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'admin.calendar.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{{ 'admin.calendar.title'|trans }} - {{ ('months.' ~ month)|trans }} {{ year }}</h1>
+        <div class="btn-group">
+            <a href="{{ path('app_admin_calendar', {year: prevYear, month: prevMonth}) }}" class="btn btn-outline-primary">&laquo; {{ 'admin.pagination.previous'|trans }}</a>
+            <a href="{{ path('app_admin_calendar') }}" class="btn btn-outline-secondary">{{ 'admin.calendar.today'|trans }}</a>
+            <a href="{{ path('app_admin_calendar', {year: nextYear, month: nextMonth}) }}" class="btn btn-outline-primary">{{ 'admin.pagination.next'|trans }} &raquo;</a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered calendar-table">
+            <thead>
+                <tr>
+                    {% for i in 1..7 %}
+                        <th class="text-center" style="width: 14.28%">{{ ('weekday.long.' ~ i)|trans }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% set day = 1 %}
+                {% set firstDayShift = firstDayOfWeek - 1 %}
+                {% set totalCells = daysInMonth + firstDayShift %}
+                {% set rows = (totalCells / 7)|round(0, 'ceil') %}
+
+                {% for row in 0..(rows - 1) %}
+                    <tr>
+                        {% for col in 1..7 %}
+                            {% set currentCell = row * 7 + col %}
+                            <td style="height: 120px; vertical-align: top;">
+                                {% if currentCell > firstDayShift and day <= daysInMonth %}
+                                    <div class="fw-bold mb-1">{{ day }}</div>
+                                    <div class="bookings-list">
+                                        {% if bookingsByDay[day] is defined %}
+                                            {% for booking in bookingsByDay[day] %}
+                                                <div class="mb-1 p-1 bg-info text-white small rounded" title="{{ booking.userName }} - {{ booking.userPhone }}">
+                                                    <a href="{{ path('app_admin_booking_edit', {id: booking.id}) }}" class="text-white text-decoration-none">
+                                                        {{ booking.startTime|date('H:i') }} {{ booking.userName }}
+                                                    </a>
+                                                </div>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+                                    {% set day = day + 1 %}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <style>
+        .calendar-table td {
+            width: 14.28%;
+            min-width: 120px;
+        }
+        .bookings-list {
+            max-height: 85px;
+            overflow-y: auto;
+        }
+    </style>
+{% endblock %}

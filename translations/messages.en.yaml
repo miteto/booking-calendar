@@ -4,6 +4,7 @@ site:
 
 nav:
   admin_dashboard: 'Admin Dashboard'
+  calendar: 'Calendar'
   configuration: 'Configuration'
   availability: 'Availability'
   settings: 'Settings'
@@ -119,6 +120,9 @@ admin:
     previous: 'Previous'
     next: 'Next'
   date_required: 'Date is required.'
+  calendar:
+    title: 'Booking Calendar'
+    today: 'Today'
   blocked_day: 'Whole day blocked.'
   unblocked_day: 'Whole day unblocked.'
   slot_blocked: 'Slot blocked.'

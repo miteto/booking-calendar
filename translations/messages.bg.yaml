@@ -4,6 +4,7 @@ site:
 
 nav:
   admin_dashboard: 'Админ панел'
+  calendar: 'Календар'
   configuration: 'Конфигурация'
   availability: 'Наличност'
   settings: 'Настройки'
@@ -119,6 +120,9 @@ admin:
     previous: 'Предишна'
     next: 'Следваща'
   date_required: 'Изисква се дата.'
+  calendar:
+    title: 'Календар на резервациите'
+    today: 'Днес'
   blocked_day: 'Блокрай целия ден'
   unblocked_day: 'Отблокрай целия ден'
   slot_blocked: 'Блокиран слот'

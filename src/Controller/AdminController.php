@@ -329,4 +329,39 @@ class AdminController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+    #[Route('/calendar/{year}/{month}', name: 'app_admin_calendar', defaults: ['year' => null, 'month' => null])]
+    public function calendar(int $year = null, int $month = null, BookingRepository $bookingRepository): Response
+    {
+        $now = new \DateTime();
+        $year = $year ?? (int)$now->format('Y');
+        $month = $month ?? (int)$now->format('m');
+
+        $startDate = new \DateTime(sprintf('%d-%02d-01', $year, $month));
+        $endDate = (clone $startDate)->modify('last day of this month');
+
+        $bookings = $bookingRepository->findInRange($startDate, $endDate);
+
+        $bookingsByDay = [];
+        foreach ($bookings as $booking) {
+            $day = (int)$booking->getDate()->format('d');
+            $bookingsByDay[$day][] = $booking;
+        }
+
+        $prevMonth = (clone $startDate)->modify('-1 month');
+        $nextMonth = (clone $startDate)->modify('+1 month');
+
+        return $this->render('admin/calendar.html.twig', [
+            'year' => $year,
+            'month' => $month,
+            'startDate' => $startDate,
+            'bookingsByDay' => $bookingsByDay,
+            'prevYear' => $prevMonth->format('Y'),
+            'prevMonth' => $prevMonth->format('m'),
+            'nextYear' => $nextMonth->format('Y'),
+            'nextMonth' => $nextMonth->format('m'),
+            'daysInMonth' => (int)$startDate->format('t'),
+            'firstDayOfWeek' => (int)$startDate->format('N'), // 1 (Mon) to 7 (Sun)
+        ]);
+    }
 }
