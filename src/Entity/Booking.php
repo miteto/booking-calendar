@@ -5,8 +5,11 @@ namespace App\Entity;
 use App\Repository\BookingRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: BookingRepository::class)]
+#[ORM\Table(name: 'booking')]
+#[ORM\UniqueConstraint(name: 'uniq_booking_date_start', columns: ['date', 'start_time'])]
 class Booking
 {
     #[ORM\Id]
@@ -24,12 +27,19 @@ class Booking
     private ?\DateTimeInterface $endTime = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     private ?string $userName = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\NotBlank]
+    #[Assert\Email]
+    #[Assert\Length(max: 255)]
     private ?string $userEmail = null;
 
     #[ORM\Column(length: 20, nullable: true)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 20)]
     private ?string $userPhone = null;
 
     #[ORM\Column(length: 10, nullable: true)]

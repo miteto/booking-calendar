@@ -101,8 +101,12 @@ class AdminController extends AbstractController
     }
 
     #[Route('/booking/delete/{id}', name: 'app_admin_booking_delete', methods: ['POST'])]
-    public function deleteBooking(Booking $booking, EntityManagerInterface $entityManager, TranslatorInterface $translator): Response
+    public function deleteBooking(Booking $booking, Request $request, EntityManagerInterface $entityManager, TranslatorInterface $translator): Response
     {
+        if (!$this->isCsrfTokenValid('admin_booking_delete_' . $booking->getId(), (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
         $entityManager->remove($booking);
         $entityManager->flush();
         $this->addFlash('success', $translator->trans('admin.booking_deleted'));
@@ -170,6 +174,10 @@ class AdminController extends AbstractController
     #[Route('/availability/block-day', name: 'app_admin_block_day', methods: ['POST'])]
     public function blockDay(Request $request, SlotRepository $slotRepository, EntityManagerInterface $em, TranslatorInterface $translator): Response
     {
+        if (!$this->isCsrfTokenValid('admin_block_day', (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
         $dateStr = $request->request->get('date');
         if (!$dateStr) {
             $this->addFlash('error', $translator->trans('admin.date_required'));
@@ -195,6 +203,10 @@ class AdminController extends AbstractController
     #[Route('/availability/toggle/{id}', name: 'app_admin_toggle_slot', methods: ['POST'])]
     public function toggleSlot(Slot $slot, Request $request, EntityManagerInterface $em, TranslatorInterface $translator): Response
     {
+        if (!$this->isCsrfTokenValid('admin_toggle_slot_' . $slot->getId(), (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
         $block = (bool)$request->request->get('block', true);
         $slot->setBlocked($block);
         $em->persist($slot);
@@ -293,6 +305,11 @@ class AdminController extends AbstractController
                 $slotEndBoundary = new \DateTime($d->format('Y-m-d') . ' ' . $config->getEndTime()->format('H:i:s'));
                 $interval = (int)$config->getSlotInterval();
 
+                if ($interval < 1) {
+                    $skipped++;
+                    continue;
+                }
+
                 for ($current = clone $slotStart; $current < $slotEndBoundary; $current->modify('+' . $interval . ' minutes')) {
                     $end = (clone $current)->modify('+' . $interval . ' minutes');
                     if ($end > $slotEndBoundary) {
@@ -331,7 +348,7 @@ class AdminController extends AbstractController
     }
 
     #[Route('/calendar/{year}/{month}', name: 'app_admin_calendar', defaults: ['year' => null, 'month' => null])]
-    public function calendar(int $year = null, int $month = null, BookingRepository $bookingRepository): Response
+    public function calendar(?int $year, ?int $month, BookingRepository $bookingRepository): Response
     {
         $now = new \DateTime();
         $year = $year ?? (int)$now->format('Y');

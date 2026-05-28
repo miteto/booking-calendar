@@ -50,6 +50,7 @@
                     <td class="d-flex gap-2">
                         <a href="{{ path('app_admin_booking_edit', {id: booking.id}) }}" class="btn btn-sm btn-warning">{{ 'admin.edit'|trans }}</a>
                         <form method="post" action="{{ path('app_admin_booking_delete', {id: booking.id}) }}" onsubmit="return confirm('Are you sure?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('admin_booking_delete_' ~ booking.id) }}" />
                             <button class="btn btn-sm btn-danger">{{ 'admin.delete'|trans }}</button>
                         </form>
                     </td>

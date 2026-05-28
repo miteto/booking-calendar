@@ -63,6 +63,11 @@ class GenerateSlotsCommand extends Command
             $slotEndBoundary = new \DateTime($d->format('Y-m-d') . ' ' . $config->getEndTime()->format('H:i:s'));
             $interval = (int)$config->getSlotInterval();
 
+            if ($interval < 1) {
+                $skipped++;
+                continue;
+            }
+
             for ($current = clone $slotStart; $current < $slotEndBoundary; $current->modify('+' . $interval . ' minutes')) {
                 $end = (clone $current)->modify('+' . $interval . ' minutes');
                 if ($end > $slotEndBoundary) {

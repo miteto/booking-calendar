@@ -30,12 +30,13 @@ class AdminBookingFilterTest extends WebTestCase
         return $user;
     }
 
-    private function createBooking(string $date, string $name, string $email, string $phone): Booking
+    private function createBooking(string $date, string $name, string $email, string $phone, string $startTime = '10:00:00'): Booking
     {
         $booking = new Booking();
         $booking->setDate(new \DateTime($date));
-        $booking->setStartTime(new \DateTime('10:00:00'));
-        $booking->setEndTime(new \DateTime('11:00:00'));
+        $booking->setStartTime(new \DateTime($startTime));
+        $end = (new \DateTime($startTime))->modify('+1 hour');
+        $booking->setEndTime($end);
         $booking->setUserName($name);
         $booking->setUserEmail($email);
         $booking->setUserPhone($phone);
@@ -58,9 +59,10 @@ class AdminBookingFilterTest extends WebTestCase
         $this->createBooking('2025-01-02', 'Jane Smith', 'jane@example.com', '654321');
         $this->createBooking('2025-02-01', 'Alice Brown', 'alice@example.com', '111222');
 
-        // Add more for pagination (limit is 20)
+        // Add more for pagination (limit is 20). Each booking must have a distinct (date, start_time).
         for ($i = 1; $i <= 20; $i++) {
-            $this->createBooking('2025-03-01', "User $i", "user$i@example.com", "999$i");
+            $startTime = sprintf('%02d:%02d:00', intdiv($i - 1, 4) + 8, (($i - 1) % 4) * 15);
+            $this->createBooking('2025-03-01', "User $i", "user$i@example.com", "999$i", $startTime);
         }
 
         $this->entityManager->flush();

@@ -9,6 +9,7 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TimeType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Positive;
 
 class SlotConfigType extends AbstractType
 {
@@ -30,6 +31,8 @@ class SlotConfigType extends AbstractType
             ])
             ->add('slotInterval', IntegerType::class, [
                 'label' => 'admin.interval_min',
+                'constraints' => [new Positive()],
+                'attr' => ['min' => 1],
             ])
         ;
     }

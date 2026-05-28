@@ -8,6 +8,7 @@ use App\Service\BookingService;
 use App\Service\SiteSettingService;
 use App\Repository\SlotRepository;
 use App\Repository\BookingRepository;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -186,7 +187,16 @@ class BookingController extends AbstractController
         $booking->setLocale($request->getLocale());
 
         $entityManager->persist($booking);
-        $entityManager->flush();
+        try {
+            $entityManager->flush();
+        } catch (UniqueConstraintViolationException) {
+            // A concurrent request booked this slot between our pre-check and insert.
+            $this->addFlash('danger', $translator->trans('flash.slot_just_booked'));
+            return $this->redirectToRoute('app_home', [
+                'embed' => $embed,
+                'date' => $date->format('Y-m-d'),
+            ]);
+        }
 
         // Send Emails
         $name = $booking->getUserName();
