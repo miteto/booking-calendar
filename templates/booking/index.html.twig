@@ -100,7 +100,7 @@
                 </div>
             {% else %}
                 <div class="alert alert-info text-center">
-                    {{ 'booking.select_day'|trans }}
+                    {{ 'booking.select_day'|trans|raw }}
                 </div>
             {% endif %}
         </div>
@@ -171,4 +171,10 @@
             document.addEventListener('turbo:load', init);
         })();
     </script>
+
+    {% if hasBooked and facebook_pixel %}
+        <script>
+            fbq('track', 'Lead');
+        </script>
+    {% endif %}
 {% endblock %}

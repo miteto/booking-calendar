@@ -11,5 +11,3 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'quill/dist/quill.snow.css';
 import './styles/app.css';
 import './styles/booking.css';
-
-console.log('This log comes from assets/app.js - welcome to AssetMapper! 🎉');

@@ -13,6 +13,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Mailer\MailerInterface;
@@ -22,7 +23,14 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class BookingController extends AbstractController
 {
     #[Route('/{year}/{month}', name: 'app_home', requirements: ['year' => '\d{4}', 'month' => '\d{1,2}'], defaults: ['year' => null, 'month' => null])]
-    public function index(Request $request, BookingService $bookingService, BookingRepository $bookingRepository, SiteSettingService $siteSettings, ?int $year = null, ?int $month = null): Response
+    public function index(
+        Request $request,
+        BookingService $bookingService,
+        BookingRepository $bookingRepository,
+        SiteSettingService $siteSettings,
+        SessionInterface $session,
+        ?int $year = null,
+        ?int $month = null): Response
     {
         $selectedDateStr = $request->query->get('date');
         $selectedDate = $selectedDateStr ? new \DateTime($selectedDateStr) : null;
@@ -78,6 +86,11 @@ class BookingController extends AbstractController
 
         $form = $this->createForm(BookingType::class);
 
+        $hasBooked = $session->get('booking_success', false);
+        if ($hasBooked) {
+            $session->remove('booking_success');
+        }
+
         return $this->render('booking/index.html.twig', [
             'currentMonth' => $currentMonth,
             'prevMonth' => $prevMonth,
@@ -91,12 +104,20 @@ class BookingController extends AbstractController
             'availableDays' => $availableDays,
             'reservationDetails' => $reservationDetails,
             'form' => $form->createView(),
+            'hasBooked' => $hasBooked,
         ]);
     }
 
 
     #[Route('/book', name: 'app_book', methods: ['POST'])]
-    public function book(Request $request, EntityManagerInterface $entityManager, MailerInterface $mailer, SlotRepository $slotRepository, TranslatorInterface $translator, SiteSettingService $siteSettings): Response
+    public function book(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        MailerInterface $mailer,
+        SlotRepository $slotRepository,
+        TranslatorInterface $translator,
+        SiteSettingService $siteSettings,
+        SessionInterface $session): Response
     {
         $booking = new Booking();
         $form = $this->createForm(BookingType::class, $booking);
@@ -247,6 +268,8 @@ class BookingController extends AbstractController
         }
 
         $this->addFlash('success', $translator->trans('flash.booking_confirmed'));
+        // Add success to session to trigger client-side success message if needed after redirect
+        $session->set('booking_success', true);
 
         return $this->redirectToRoute('app_home', [
             'embed' => $embed

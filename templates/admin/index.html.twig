@@ -41,7 +41,7 @@
         <tbody>
             {% for booking in bookings %}
                 <tr>
-                    <td>{{ booking.date|date('Y-m-d') }}</td>
+                    <td>{{ booking.date|date('d F Y') }}</td>
                     <td>{{ booking.startTime|date('H:i') }} - {{ booking.endTime|date('H:i') }}</td>
                     <td>{{ booking.userName }}</td>
                     <td>{{ booking.userEmail }}</td>
