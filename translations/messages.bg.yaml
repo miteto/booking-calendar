@@ -34,7 +34,7 @@ booking:
     sun: 'Нед'
   available_for: 'Налични слотове за %date%'
   no_slots: 'Няма налични слотове за този ден.'
-  select_day: 'Моля, изберете ден от календара по-горе, за да видите наличните слотове.'
+  select_day: 'Моля, изберете ден от календара по-горе, за да видите наличните слотове. (<a target="_blank" href="https://github.com/miteto/booking-calendar">Проект с отворен код, създаден в Пловдив</a>)'
   already_booked: 'Вече резервирани'
   modal:
     title: 'Резервирай слот: %date%'
@@ -79,13 +79,16 @@ flash:
 email:
   user:
     subject: 'Потвърждение за резервация'
-    body: 'Уважаеми/а %name%, вашата резервация за %date% в %time% е потвърдена.'
+    body: 'Уважаеми/а %name%, вашата резервация за %date% в %time% е потвърдена. За отказ посетете: %cancellation_link%'
   reminder:
     subject: 'Напомняне за резервация'
     body: 'Уважаеми/а %name%, това е напомняне за вашата резервация на %date% в %time%.'
   admin:
     subject: 'Нова резервация'
     body: 'Нова резервация от %name% (%email%) за %date% в %time%.'
+    cancellation:
+      subject: 'Отказана резервация'
+      body: 'Резервацията на %name% (%email%, %phone%) за %date% в %time% беше отказана.'
 
 admin:
   current_bookings: 'Текущи резервации'
@@ -149,17 +152,20 @@ admin:
   global: 'Глобално'
   settings:
     title: 'Редактируеми текстове'
-    intro: 'Управлявайте кратките детайли за резервация и шаблона за имейл до потребителя за всеки език. Използвайте плейсхолдери %name%, %email%, %phone%, %date%, %time% в имейла.'
+    intro: 'Управлявайте кратките детайли за резервация и шаблона за имейл до потребителя за всеки език. Използвайте плейсхолдери %name%, %email%, %phone%, %date%, %time%, , %cancellation_link% в имейла.'
     reservation_details_en: 'Детайли за резервация (EN)'
     reservation_details_bg: 'Детайли за резервация (BG)'
     email_template_en: 'Шаблон на имейл до потребителя (EN)'
     email_template_bg: 'Шаблон на имейл до потребителя (BG)'
     reminder_email_template_en: 'Шаблон на имейл за напомняне (EN)'
     reminder_email_template_bg: 'Шаблон на имейл за напомняне (BG)'
+    cancellation_template_en: 'Текст на страницата за отказ (EN)'
+    cancellation_template_bg: 'Текст на страницата за отказ (BG)'
     save: 'Запази настройките'
     saved: 'Настройките са записани.'
     html_hint: 'Поддържат се HTML тагове (напр. <b>bold</b>, <br> за нов ред).'
-    email_help: 'Налични плейсхолдъри: %name%, %email%, %phone%, %date%, %time% (и %hours% за напомняния). Поддържа се HTML.'
+    email_help: 'Налични плейсхолдъри: %name%, %email%, %phone%, %date%, %time%, %cancellation_link% (и %hours% за напомняния). Поддържа се HTML.'
+    cancellation_template_help: 'Показва се на потребителите на страницата за потвърждение на отказа, преди да откажат резервацията. Поддържа се HTML.'
   day_name:
     Monday: 'Понеделник'
     Tuesday: 'Вторник'
@@ -168,3 +174,25 @@ admin:
     Friday: 'Петък'
     Saturday: 'Събота'
     Sunday: 'Неделя'
+
+cancel:
+  title: 'Отказ на резервация'
+  heading: 'Откажете вашата резервация'
+  label:
+    name: 'Име'
+    email: 'Имейл'
+    phone: 'Телефон'
+    date: 'Дата'
+    time: 'Час'
+  button: 'Откажи резервацията'
+  keep: 'Запази резервацията'
+  confirm_prompt: 'Сигурни ли сте, че искате да откажете тази резервация?'
+  success:
+    title: 'Резервацията е отказана'
+    heading: 'Вашата резервация беше отказана.'
+    body: 'Ако желаете да резервирате отново, изберете нов час по-долу.'
+    book_again: 'Резервирай друг час'
+  not_found:
+    title: 'Резервацията не е намерена'
+    heading: 'Резервацията не е намерена.'
+    body: 'Тази връзка за отказ е невалидна или резервацията вече е отказана.'

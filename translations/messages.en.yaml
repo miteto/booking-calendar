@@ -34,7 +34,7 @@ booking:
     sun: 'Sun'
   available_for: 'Available Slots for %date%'
   no_slots: 'No slots available for this day.'
-  select_day: 'Please select a day from the calendar above to see available slots.'
+  select_day: 'Please select a day from the calendar above to see available slots. (<a target="_blank" href="https://github.com/miteto/booking-calendar">Open source project, made in Plovdiv</a>)'
   already_booked: 'Already Booked'
   modal:
     title: 'Book Slot: %date%'
@@ -79,13 +79,16 @@ flash:
 email:
   user:
     subject: 'Booking Confirmation'
-    body: 'Dear %name%, your booking on %date% at %time% is confirmed.'
+    body: 'Dear %name%, your booking on %date% at %time% is confirmed. To cancel, visit: %cancellation_link%'
   reminder:
     subject: 'Booking Reminder'
     body: 'Dear %name%, this is a reminder for your booking on %date% at %time%.'
   admin:
     subject: 'New Booking Received'
     body: 'New booking from %name% (%email%) on %date% at %time%.'
+    cancellation:
+      subject: 'Booking Cancelled'
+      body: 'The booking by %name% (%email%, %phone%) on %date% at %time% has been cancelled.'
 
 admin:
   current_bookings: 'Current Bookings'
@@ -149,17 +152,20 @@ admin:
   global: 'Global'
   settings:
     title: 'Editable Texts'
-    intro: 'Manage the short reservation details and the user email template for each language. Use placeholders %name%, %email%, %phone%, %date%, %time% in the email.'
+    intro: 'Manage the short reservation details and the user email template for each language. Use placeholders %name%, %email%, %phone%, %date%, %time%, %cancellation_link% in the email.'
     reservation_details_en: 'Reservation details (EN)'
     reservation_details_bg: 'Reservation details (BG)'
     email_template_en: 'User email template (EN)'
     email_template_bg: 'User email template (BG)'
     reminder_email_template_en: 'Reminder email template (EN)'
     reminder_email_template_bg: 'Reminder email template (BG)'
+    cancellation_template_en: 'Cancellation page text (EN)'
+    cancellation_template_bg: 'Cancellation page text (BG)'
     save: 'Save Settings'
     saved: 'Settings saved.'
     html_hint: 'HTML tags are supported (e.g. <b>bold</b>, <br> for new line).'
-    email_help: 'Available placeholders: %name%, %email%, %phone%, %date%, %time% (and %hours% for reminders). HTML supported.'
+    email_help: 'Available placeholders: %name%, %email%, %phone%, %date%, %time%, %cancellation_link% (and %hours% for reminders). HTML supported.'
+    cancellation_template_help: 'Shown to users on the cancellation confirmation page before they cancel. HTML supported.'
   day_name:
     Monday: 'Monday'
     Tuesday: 'Tuesday'
@@ -168,3 +174,25 @@ admin:
     Friday: 'Friday'
     Saturday: 'Saturday'
     Sunday: 'Sunday'
+
+cancel:
+  title: 'Cancel Reservation'
+  heading: 'Cancel your reservation'
+  label:
+    name: 'Name'
+    email: 'Email'
+    phone: 'Phone'
+    date: 'Date'
+    time: 'Time'
+  button: 'Cancel reservation'
+  keep: 'Keep reservation'
+  confirm_prompt: 'Are you sure you want to cancel this reservation?'
+  success:
+    title: 'Reservation cancelled'
+    heading: 'Your reservation has been cancelled.'
+    body: 'If you would like to book again, you can pick a new slot below.'
+    book_again: 'Book another slot'
+  not_found:
+    title: 'Reservation not found'
+    heading: 'Reservation not found.'
+    body: 'This cancellation link is invalid or the reservation has already been cancelled.'

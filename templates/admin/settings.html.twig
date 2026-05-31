@@ -69,6 +69,25 @@
             </div>
         </div>
 
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-section">
+                    {{ form_label(form.cancellation_template_en) }}
+                    {{ form_errors(form.cancellation_template_en) }}
+                    {{ form_widget(form.cancellation_template_en) }}
+                    {{ form_help(form.cancellation_template_en) }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-section">
+                    {{ form_label(form.cancellation_template_bg) }}
+                    {{ form_errors(form.cancellation_template_bg) }}
+                    {{ form_widget(form.cancellation_template_bg) }}
+                    {{ form_help(form.cancellation_template_bg) }}
+                </div>
+            </div>
+        </div>
+
         <button type="submit" class="btn btn-primary">{{ 'admin.settings.save'|trans }}</button>
     {{ form_end(form) }}
 {% endblock %}

@@ -12,6 +12,8 @@ A multilingual booking system built with Symfony 8. It allows clients to book ti
     - **Slot Generation**: Automatically generate future time slots based on your configurations via browser or CLI.
     - **Site Settings**: Customize email templates and other site-wide settings.
 - **Automated Notifications**: Send email reminders to clients before their scheduled appointments.
+- **Self-Service Cancellation**: Each confirmation email can include a unique cancellation link; clients cancel from a public page and the admin is notified by email.
+- **Facebook (Meta) Pixel**: Optional tracking with `PageView` and `Lead` events, enabled by a single env variable.
 - **Embed Option**: Easily integrate the booking calendar into other websites using an iframe.
 - **Multilingual Support**: Fully translated into English and Bulgarian.
 - **Modern Tech Stack**: Built with Symfony 8, Doctrine ORM, Twig, and Symfony UX (Turbo/Stimulus).
@@ -84,7 +86,7 @@ Slots are the available time intervals that clients can book. They are managed t
 
 ### Mail Templates
 
-You can customize the emails sent by the system in **Admin -> Settings**. There are templates for both Booking Confirmations and Reminders, available in English and Bulgarian.
+You can customize the emails sent by the system in **Admin -> Settings**. There are templates for Booking Confirmations and Reminders, available in English and Bulgarian.
 
 **Available Placeholders:**
 - `%name%`: Client's name.
@@ -92,7 +94,16 @@ You can customize the emails sent by the system in **Admin -> Settings**. There 
 - `%phone%`: Client's phone number.
 - `%date%`: Date of the appointment (YYYY-MM-DD).
 - `%time%`: Start time of the appointment (HH:MM).
+- `%cancellation_link%`: Absolute URL to the public cancellation page for that reservation (Confirmation emails only).
 - `%hours%`: Number of hours remaining until the appointment (used in **Reminders** only).
+
+### Cancellation
+
+When a booking is created, a unique 64-character token is stored alongside it and used to build a non-guessable cancellation URL (e.g. `/<locale>/reservation/cancel/<token>`). Drop `%cancellation_link%` into the user confirmation template to expose it.
+
+The page opened by the link shows the reservation details with a confirm button; submitting it deletes the booking (which frees the slot), sends an admin notification email, and redirects the user to a success page. No cancellation email is sent to the user.
+
+In **Admin -> Settings** you can edit the text shown above the reservation details on that page via **Cancellation page text (EN/BG)**. HTML is supported. Leave empty to show no extra intro.
 
 ## Embed Option
 
@@ -121,6 +132,7 @@ Key configuration variables in your `.env` or `.env.local`:
 - `MINIMUM_BOOKING_NOTICE`: Minimum minutes before a slot can be booked (default: 120).
 - `NOTIFICATION_HOURS`: Comma-separated list of hours before an appointment to send a reminder (e.g., `2,12`).
 - `APP_TIMEZONE`: The application's timezone (default: `Europe/Sofia`).
+- `FACEBOOK_PIXEL`: Optional Meta Pixel ID. When set, the pixel loader and a Stimulus controller that fires `PageView` (on Turbo loads) and `Lead` (on successful bookings) are rendered. Leave empty to disable completely.
 
 ## CLI Commands
 

@@ -10,6 +10,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: BookingRepository::class)]
 #[ORM\Table(name: 'booking')]
 #[ORM\UniqueConstraint(name: 'uniq_booking_date_start', columns: ['date', 'start_time'])]
+#[ORM\UniqueConstraint(name: 'uniq_booking_cancellation_token', columns: ['cancellation_token'])]
 class Booking
 {
     #[ORM\Id]
@@ -45,9 +46,24 @@ class Booking
     #[ORM\Column(length: 10, nullable: true)]
     private ?string $locale = null;
 
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $cancellationToken = null;
+
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getCancellationToken(): ?string
+    {
+        return $this->cancellationToken;
+    }
+
+    public function setCancellationToken(?string $cancellationToken): static
+    {
+        $this->cancellationToken = $cancellationToken;
+
+        return $this;
     }
 
     public function getDate(): ?\DateTimeInterface

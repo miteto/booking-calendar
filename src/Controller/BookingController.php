@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -206,6 +207,7 @@ class BookingController extends AbstractController
         $booking->setStartTime($startTime);
         $booking->setEndTime($endTime);
         $booking->setLocale($request->getLocale());
+        $booking->setCancellationToken(bin2hex(random_bytes(32)));
 
         $entityManager->persist($booking);
         try {
@@ -230,6 +232,21 @@ class BookingController extends AbstractController
         $adminEmailAddress = $this->getParameter('app.admin_email');
         $noreplyEmailAddress = $this->getParameter('app.noreply_email');
 
+        $cancellationLink = $this->generateUrl(
+            'app_booking_cancel_confirm',
+            ['token' => $booking->getCancellationToken()],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+
+        $placeholders = [
+            '%name%' => $name,
+            '%email%' => $email,
+            '%phone%' => $phone,
+            '%date%' => $date->format('Y-m-d'),
+            '%time%' => $startTime->format('H:i'),
+            '%cancellation_link%' => $cancellationLink,
+        ];
+
         $userEmail = (new Email())
             ->from(new Address($noreplyEmailAddress, $translator->trans('site.name')))
             ->to($email)
@@ -237,22 +254,10 @@ class BookingController extends AbstractController
             ->subject($translator->trans('email.user.subject'));
 
         if ($emailTemplate) {
-            $bodyHtml = strtr($emailTemplate, [
-                '%name%' => $name,
-                '%email%' => $email,
-                '%phone%' => $phone,
-                '%date%' => $date->format('Y-m-d'),
-                '%time%' => $startTime->format('H:i'),
-            ]);
+            $bodyHtml = strtr($emailTemplate, $placeholders);
             $userEmail->html($bodyHtml)->text(strip_tags($bodyHtml));
         } else {
-            $userEmail->text($translator->trans('email.user.body', [
-                '%name%' => $name,
-                '%email%' => $email,
-                '%phone%' => $phone,
-                '%date%' => $date->format('Y-m-d'),
-                '%time%' => $startTime->format('H:i'),
-            ]));
+            $userEmail->text($translator->trans('email.user.body', $placeholders));
         }
 
         // Create admin email as a copy of user email but with admin recipient
@@ -274,5 +279,75 @@ class BookingController extends AbstractController
         return $this->redirectToRoute('app_home', [
             'embed' => $embed
         ]);
+    }
+
+    #[Route('/reservation/cancel/{token}', name: 'app_booking_cancel_confirm', methods: ['GET'], requirements: ['token' => '[a-f0-9]{64}'])]
+    public function cancelConfirm(string $token, BookingRepository $bookingRepository, SiteSettingService $siteSettings, Request $request): Response
+    {
+        $booking = $bookingRepository->findOneBy(['cancellationToken' => $token]);
+        if (!$booking) {
+            return $this->render('booking/cancel_not_found.html.twig', [], new Response('', Response::HTTP_NOT_FOUND));
+        }
+
+        $lang = str_starts_with($request->getLocale(), 'bg') ? 'bg' : 'en';
+        $cancellationText = $siteSettings->get('cancellation_template_' . $lang, '');
+
+        return $this->render('booking/cancel.html.twig', [
+            'booking' => $booking,
+            'cancellationText' => $cancellationText,
+        ]);
+    }
+
+    #[Route('/reservation/cancel/{token}', name: 'app_booking_cancel', methods: ['POST'], requirements: ['token' => '[a-f0-9]{64}'])]
+    public function cancel(
+        string $token,
+        Request $request,
+        BookingRepository $bookingRepository,
+        EntityManagerInterface $entityManager,
+        MailerInterface $mailer,
+        TranslatorInterface $translator,
+    ): Response {
+        if (!$this->isCsrfTokenValid('cancel_booking_' . $token, (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $booking = $bookingRepository->findOneBy(['cancellationToken' => $token]);
+        if (!$booking) {
+            return $this->render('booking/cancel_not_found.html.twig', [], new Response('', Response::HTTP_NOT_FOUND));
+        }
+
+        // Snapshot details for the admin email before removing the entity.
+        $placeholders = [
+            '%name%' => $booking->getUserName(),
+            '%email%' => $booking->getUserEmail(),
+            '%phone%' => $booking->getUserPhone(),
+            '%date%' => $booking->getDate()->format('Y-m-d'),
+            '%time%' => $booking->getStartTime()->format('H:i'),
+        ];
+        $replyTo = $booking->getUserEmail();
+
+        $entityManager->remove($booking);
+        $entityManager->flush();
+
+        $adminEmail = (new Email())
+            ->from(new Address($this->getParameter('app.noreply_email'), $translator->trans('site.name')))
+            ->to($this->getParameter('app.admin_email'))
+            ->replyTo($replyTo)
+            ->subject($translator->trans('email.admin.cancellation.subject'))
+            ->text($translator->trans('email.admin.cancellation.body', $placeholders));
+
+        try {
+            $mailer->send($adminEmail);
+        } catch (\Exception) {
+            // The booking is already cancelled; do not block the user on mailer failure.
+        }
+
+        return $this->redirectToRoute('app_booking_cancelled');
+    }
+
+    #[Route('/reservation/cancelled', name: 'app_booking_cancelled', methods: ['GET'])]
+    public function cancelled(): Response
+    {
+        return $this->render('booking/cancelled.html.twig');
     }
 }

@@ -13,6 +13,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[AsCommand(
@@ -26,6 +27,7 @@ class NotifyBookingCommand extends Command
         private MailerInterface $mailer,
         private SiteSettingService $siteSettings,
         private TranslatorInterface $translator,
+        private UrlGeneratorInterface $urlGenerator,
         private string $notificationHours,
         private string $noreplyEmail
     ) {
@@ -100,6 +102,12 @@ class NotifyBookingCommand extends Command
             ->to($emailAddress)
             ->subject($subject);
 
+        $cancellationLink = $this->urlGenerator->generate(
+            'app_booking_cancel_confirm',
+            ['token' => $booking->getCancellationToken()],
+            UrlGeneratorInterface::ABSOLUTE_URL
+        );
+
         $placeholders = [
             '%name%' => $booking->getUserName(),
             '%email%' => $booking->getUserEmail(),
@@ -107,6 +115,7 @@ class NotifyBookingCommand extends Command
             '%date%' => $booking->getDate()->format('Y-m-d'),
             '%time%' => $booking->getStartTime()->format('H:i'),
             '%hours%' => $hourWindow,
+            '%cancellation_link%' => $cancellationLink,
         ];
 
         if ($template) {

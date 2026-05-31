@@ -66,6 +66,24 @@ class SiteSettingsType extends AbstractType
                 ],
                 'help' => 'admin.settings.email_help',
             ])
+            ->add('cancellation_template_en', TextareaType::class, [
+                'label' => 'admin.settings.cancellation_template_en',
+                'required' => false,
+                'attr' => [
+                    'rows' => 10,
+                    'data-controller' => 'quill',
+                ],
+                'help' => 'admin.settings.cancellation_template_help',
+            ])
+            ->add('cancellation_template_bg', TextareaType::class, [
+                'label' => 'admin.settings.cancellation_template_bg',
+                'required' => false,
+                'attr' => [
+                    'rows' => 10,
+                    'data-controller' => 'quill',
+                ],
+                'help' => 'admin.settings.cancellation_template_help',
+            ])
         ;
     }
 

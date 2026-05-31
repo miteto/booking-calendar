@@ -148,6 +148,8 @@ class AdminController extends AbstractController
             'email_template_bg' => $settings->get('email_template_bg', ''),
             'reminder_email_template_en' => $settings->get('reminder_email_template_en', ''),
             'reminder_email_template_bg' => $settings->get('reminder_email_template_bg', ''),
+            'cancellation_template_en' => $settings->get('cancellation_template_en', ''),
+            'cancellation_template_bg' => $settings->get('cancellation_template_bg', ''),
         ];
 
         $form = $this->createForm(SiteSettingsType::class, $data);
@@ -161,6 +163,8 @@ class AdminController extends AbstractController
             $settings->set('email_template_bg', $formData['email_template_bg']);
             $settings->set('reminder_email_template_en', $formData['reminder_email_template_en']);
             $settings->set('reminder_email_template_bg', $formData['reminder_email_template_bg']);
+            $settings->set('cancellation_template_en', $formData['cancellation_template_en']);
+            $settings->set('cancellation_template_bg', $formData['cancellation_template_bg']);
 
             $this->addFlash('success', $translator->trans('admin.settings.saved'));
             return $this->redirectToRoute('app_admin_settings');

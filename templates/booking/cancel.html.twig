@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'cancel.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="row justify-content-center py-3">
+        <div class="col-md-6">
+            <h2 class="mb-3">{{ 'cancel.heading'|trans }}</h2>
+            {% if cancellationText %}
+                <div class="text-muted mb-3" id="cancellation-text">{{ cancellationText|raw }}</div>
+            {% endif %}
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">{{ 'cancel.label.name'|trans }}</dt>
+                        <dd class="col-sm-8">{{ booking.userName }}</dd>
+
+                        <dt class="col-sm-4">{{ 'cancel.label.email'|trans }}</dt>
+                        <dd class="col-sm-8">{{ booking.userEmail }}</dd>
+
+                        <dt class="col-sm-4">{{ 'cancel.label.phone'|trans }}</dt>
+                        <dd class="col-sm-8">{{ booking.userPhone }}</dd>
+
+                        <dt class="col-sm-4">{{ 'cancel.label.date'|trans }}</dt>
+                        <dd class="col-sm-8">{{ booking.date|date('Y-m-d') }}</dd>
+
+                        <dt class="col-sm-4">{{ 'cancel.label.time'|trans }}</dt>
+                        <dd class="col-sm-8">{{ booking.startTime|date('H:i') }} - {{ booking.endTime|date('H:i') }}</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <form method="post" action="{{ path('app_booking_cancel', {token: booking.cancellationToken}) }}"
+                  onsubmit="return confirm('{{ 'cancel.confirm_prompt'|trans }}');">
+                <input type="hidden" name="_token" value="{{ csrf_token('cancel_booking_' ~ booking.cancellationToken) }}">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger">{{ 'cancel.button'|trans }}</button>
+                    <a href="{{ path('app_home') }}" class="btn btn-secondary">{{ 'cancel.keep'|trans }}</a>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
