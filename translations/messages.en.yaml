@@ -91,9 +91,10 @@ email:
       body: 'The booking by %name% (%email%, %phone%) on %date% at %time% has been cancelled.'
 
 admin:
-  current_bookings: 'Current Bookings'
+  current_bookings: 'Bookings'
   add_booking: 'Add Booking'
   edit_booking: 'Edit Booking'
+  filter_current: 'Filter Current Bookings'
   date: 'Date'
   time: 'Time'
   status: 'Status'

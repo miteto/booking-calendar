@@ -3,8 +3,9 @@
 {% block title %}{{ 'nav.admin_dashboard'|trans }}{% endblock %}
 
 {% block body %}
-    <div class="d-flex justify-content-between align-items-center">
+    <div class="d-flex justify-content-between align-items-end">
         <h1>{{ 'admin.current_bookings'|trans }}</h1>
+        <a href="{{ path('app_admin_dashboard', {'from': 'now'|date('Y-m-d')}) }}" class="btn btn-info">{{ 'admin.filter_current'|trans }}</a>
         <a href="{{ path('app_admin_booking_add') }}" class="btn btn-success">{{ 'admin.add_booking'|trans }}</a>
     </div>
 

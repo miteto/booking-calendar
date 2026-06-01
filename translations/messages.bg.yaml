@@ -91,9 +91,10 @@ email:
       body: 'Резервацията на %name% (%email%, %phone%) за %date% в %time% беше отказана.'
 
 admin:
-  current_bookings: 'Текущи резервации'
+  current_bookings: 'Резервации'
   add_booking: 'Добави резервация'
   edit_booking: 'Редакция на резервация'
+  filter_current: 'Филтрирай текущи резервации'
   date: 'Дата'
   time: 'Час'
   status: 'Статус'
