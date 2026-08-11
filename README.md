@@ -13,7 +13,7 @@ A multilingual booking system built with Symfony 8. It allows clients to book ti
     - **Site Settings**: Customize email templates and other site-wide settings.
 - **Automated Notifications**: Send email reminders to clients before their scheduled appointments.
 - **Self-Service Cancellation**: Each confirmation email can include a unique cancellation link; clients cancel from a public page and the admin is notified by email.
-- **Facebook (Meta) Pixel**: Optional tracking with `PageView` and `Lead` events, enabled by a single env variable.
+- **Facebook (Meta) Pixel**: Optional tracking with `PageView`, `InitiateCheckout`, and `Lead` events, enabled by a single env variable.
 - **Embed Option**: Easily integrate the booking calendar into other websites using an iframe.
 - **Multilingual Support**: Fully translated into English and Bulgarian.
 - **Modern Tech Stack**: Built with Symfony 8, Doctrine ORM, Twig, and Symfony UX (Turbo/Stimulus).
@@ -132,7 +132,7 @@ Key configuration variables in your `.env` or `.env.local`:
 - `MINIMUM_BOOKING_NOTICE`: Minimum minutes before a slot can be booked (default: 120).
 - `NOTIFICATION_HOURS`: Comma-separated list of hours before an appointment to send a reminder (e.g., `2,12`).
 - `APP_TIMEZONE`: The application's timezone (default: `Europe/Sofia`).
-- `FACEBOOK_PIXEL`: Optional Meta Pixel ID. When set, the pixel loader and a Stimulus controller that fires `PageView` (on Turbo loads) and `Lead` (on successful bookings) are rendered. Leave empty to disable completely.
+- `FACEBOOK_PIXEL`: Optional Meta Pixel ID. When set, the pixel loader and a Stimulus controller that fires `PageView` (on Turbo loads) and `Lead` (on successful bookings) are rendered. Additionally, `InitiateCheckout` fires when a visitor opens the booking form for a selected slot, with booking metadata (date, time, booking window, slot period, and site locale — no personal data). Leave empty to disable completely.
 
 ## CLI Commands
 
