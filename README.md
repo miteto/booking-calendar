@@ -123,6 +123,16 @@ Example iframe code:
 <iframe src="https://your-domain.com/?embed=1" width="100%" height="600" frameborder="0"></iframe>
 ```
 
+### Limiting the bookable dates
+
+For special events you can load the calendar with only a certain date range available by adding `from_date` and/or `end_date` (both `YYYY-MM-DD`, inclusive):
+
+```text
+https://your-domain.com/?embed=1&from_date=2026-10-20&end_date=2026-11-05
+```
+
+The calendar opens on the first month of the range, days outside it are disabled, and the previous/next arrows stop at the range boundaries. This only affects the public calendar view the parameters are passed to; all other instances load as usual.
+
 ## Configuration (.env)
 
 Key configuration variables in your `.env` or `.env.local`:

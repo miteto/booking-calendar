@@ -36,8 +36,14 @@ class BookingController extends AbstractController
         $selectedDateStr = $request->query->get('date');
         $selectedDate = $selectedDateStr ? new \DateTime($selectedDateStr) : null;
 
-        $defaultMonth = $selectedDate ? (int)$selectedDate->format('m') : (int)date('m');
-        $defaultYear = $selectedDate ? (int)$selectedDate->format('Y') : (int)date('Y');
+        // Optional range limiting the bookable days (e.g. ?from_date=2026-10-20&end_date=2026-11-05)
+        $rangeFrom = \DateTime::createFromFormat('!Y-m-d', $request->query->getString('from_date')) ?: null;
+        $rangeEnd = \DateTime::createFromFormat('!Y-m-d', $request->query->getString('end_date')) ?: null;
+
+        $today = new \DateTime('today');
+        $defaultDate = $selectedDate ?? max($today, $rangeFrom ?? $today);
+        $defaultMonth = (int)$defaultDate->format('m');
+        $defaultYear = (int)$defaultDate->format('Y');
 
         $month = $month ?? (int) $request->query->get('month', $defaultMonth);
         $year = $year ?? (int) $request->query->get('year', $defaultYear);
@@ -47,10 +53,10 @@ class BookingController extends AbstractController
         $prevMonth = (clone $currentMonth)->modify('-1 month');
         $nextMonth = (clone $currentMonth)->modify('+1 month');
 
-        $today = new \DateTime('today');
         $firstDayOfThisMonth = new \DateTime('first day of this month');
         $firstDayOfThisMonth->setTime(0, 0, 0);
-        $canGoPrev = $prevMonth >= $firstDayOfThisMonth;
+        $canGoPrev = $prevMonth >= $firstDayOfThisMonth && (!$rangeFrom || $rangeFrom < $currentMonth);
+        $canGoNext = !$rangeEnd || $rangeEnd >= $nextMonth;
 
         $slots = [];
         $bookings = [];
@@ -79,6 +85,12 @@ class BookingController extends AbstractController
 
         $startDate = clone $currentMonth;
         $endDate = (clone $currentMonth)->modify('last day of this month');
+        if ($rangeFrom) {
+            $startDate = max($startDate, $rangeFrom);
+        }
+        if ($rangeEnd) {
+            $endDate = min($endDate, $rangeEnd);
+        }
         $availableDays = $bookingService->getAvailableDaysInRange($startDate, $endDate);
 
         $locale = $request->getLocale();
@@ -97,6 +109,7 @@ class BookingController extends AbstractController
             'prevMonth' => $prevMonth,
             'nextMonth' => $nextMonth,
             'canGoPrev' => $canGoPrev,
+            'canGoNext' => $canGoNext,
             'days' => $days,
             'selectedDate' => $selectedDate,
             'slots' => $slots,
@@ -131,7 +144,12 @@ class BookingController extends AbstractController
 
         $selectedDate = $form->get('date')->getData();
         $slotId = $form->get('slot_id')->getData();
-        $embed = $form->get('embed')->getData();
+        // Carried over to the calendar on every redirect
+        $homeParams = [
+            'embed' => $form->get('embed')->getData(),
+            'from_date' => $request->query->get('from_date'),
+            'end_date' => $request->query->get('end_date'),
+        ];
 
         // Prefer robust server-side resolution via Slot ID
         $slot = null;
@@ -146,7 +164,7 @@ class BookingController extends AbstractController
             if (!$date || !$startTimeParam) {
                 $this->addFlash('danger', $translator->trans('flash.slot_not_available'));
                 return $this->redirectToRoute('app_home', [
-                    'embed' => $embed,
+                    ...$homeParams,
                     'date' => $selectedDate ?: (new \DateTime('today'))->format('Y-m-d'),
                 ]);
             }
@@ -157,7 +175,7 @@ class BookingController extends AbstractController
         if (!$slot || $slot->isBlocked()) {
             $this->addFlash('danger', $translator->trans('flash.slot_not_available'));
             return $this->redirectToRoute('app_home', [
-                'embed' => $embed,
+                ...$homeParams,
                 'date' => $selectedDate ?: ($slot?->getDate()?->format('Y-m-d') ?? (new \DateTime('today'))->format('Y-m-d')),
             ]);
         }
@@ -174,14 +192,14 @@ class BookingController extends AbstractController
             if ($slotFullStart < $minAllowedTime) {
                 $this->addFlash('danger', $translator->trans('flash.too_late_to_book'));
                 return $this->redirectToRoute('app_home', [
-                    'embed' => $embed,
+                    ...$homeParams,
                     'date' => $slot->getDate()->format('Y-m-d'),
                 ]);
             }
         } elseif ($slotFullStart < $now) {
             $this->addFlash('danger', $translator->trans('flash.too_late_to_book'));
             return $this->redirectToRoute('app_home', [
-                'embed' => $embed,
+                ...$homeParams,
                 'date' => $slot->getDate()->format('Y-m-d'),
             ]);
         }
@@ -198,7 +216,7 @@ class BookingController extends AbstractController
         if ($existing) {
             $this->addFlash('danger', $translator->trans('flash.slot_just_booked'));
             return $this->redirectToRoute('app_home', [
-                'embed' => $embed,
+                ...$homeParams,
                 'date' => $date->format('Y-m-d'),
             ]);
         }
@@ -216,7 +234,7 @@ class BookingController extends AbstractController
             // A concurrent request booked this slot between our pre-check and insert.
             $this->addFlash('danger', $translator->trans('flash.slot_just_booked'));
             return $this->redirectToRoute('app_home', [
-                'embed' => $embed,
+                ...$homeParams,
                 'date' => $date->format('Y-m-d'),
             ]);
         }
@@ -276,9 +294,7 @@ class BookingController extends AbstractController
         // Add success to session to trigger client-side success message if needed after redirect
         $session->set('booking_success', true);
 
-        return $this->redirectToRoute('app_home', [
-            'embed' => $embed
-        ]);
+        return $this->redirectToRoute('app_home', $homeParams);
     }
 
     #[Route('/reservation/cancel/{token}', name: 'app_booking_cancel_confirm', methods: ['GET'], requirements: ['token' => '[a-f0-9]{64}'])]

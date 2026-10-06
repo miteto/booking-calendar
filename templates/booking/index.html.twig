@@ -8,6 +8,8 @@
 
 {% block body %}
     {% set formattedDate = '' %}
+    {# Query parameters carried over between calendar pages #}
+    {% set keepParams = {embed: app.request.query.get('embed'), from_date: app.request.query.get('from_date'), end_date: app.request.query.get('end_date')} %}
     <div class="row justify-content-center py-3">
         <div class="col-md-10">
             <h2 class="text-center mb-2">{{ 'booking.heading'|trans }}</h2>
@@ -15,7 +17,7 @@
 
             <div class="d-flex justify-content-between align-items-center mb-3">
                 {% if canGoPrev %}
-                    <a href="{{ path('app_home', {month: prevMonth|date('n'), year: prevMonth|date('Y'), embed: app.request.query.get('embed')}) }}" class="btn btn-outline-primary prev-month">&lsaquo;</a>
+                    <a href="{{ path('app_home', keepParams|merge({month: prevMonth|date('n'), year: prevMonth|date('Y')})) }}" class="btn btn-outline-primary prev-month">&lsaquo;</a>
                 {% else %}
                     <div class="nav-spacer"></div>
                 {% endif %}
@@ -23,7 +25,11 @@
                 {% set monthTitle = ('months.' ~ currentMonth|date('n'))|trans %}
                 <h5 class="mb-0">{{ monthTitle }} {{ currentMonth|date('Y') }}</h5>
 
-                <a href="{{ path('app_home', {month: nextMonth|date('n'), year: nextMonth|date('Y'), embed: app.request.query.get('embed')}) }}" class="btn btn-outline-primary next-month">&rsaquo;</a>
+                {% if canGoNext %}
+                    <a href="{{ path('app_home', keepParams|merge({month: nextMonth|date('n'), year: nextMonth|date('Y')})) }}" class="btn btn-outline-primary next-month">&rsaquo;</a>
+                {% else %}
+                    <div class="nav-spacer"></div>
+                {% endif %}
             </div>
 
             <div class="calendar-grid mb-4">
@@ -42,10 +48,7 @@
                         {% set isActive = selectedDate and selectedDate|date('Y-m-d') == day|date('Y-m-d') %}
                         {% set isPast = day < today %}
                         {% set isAvailable = day|date('Y-m-d') in availableDays %}
-                        {% set pathParams = {date: day|date('Y-m-d'), year: currentMonth|date('Y'), month: currentMonth|date('n')} %}
-                        {% if app.request.query.get('embed') %}
-                            {% set pathParams = pathParams|merge({embed: '1'}) %}
-                        {% endif %}
+                        {% set pathParams = keepParams|merge({date: day|date('Y-m-d'), year: currentMonth|date('Y'), month: currentMonth|date('n')}) %}
                         <a href="{{ (isPast or not isAvailable) ? '#' : path('app_home', pathParams) }}"
                            class="day-card {{ isActive ? 'active' : '' }} {{ (isPast or not isAvailable) ? 'disabled' : '' }}"
                            id="day-{{ day|date('Y-m-d') }}">
@@ -112,7 +115,7 @@
          data-action="show.bs.modal->booking-modal#update">
         <div class="modal-dialog">
             <div class="modal-content">
-                {{ form_start(form, {'action': path('app_book')}) }}
+                {{ form_start(form, {'action': path('app_book', {from_date: keepParams.from_date, end_date: keepParams.end_date})}) }}
                     <div class="modal-header">
                         <h5 class="modal-title">{{ 'booking.modal.title'|trans({'%date%': formattedDate|default('')}) }} <span data-booking-modal-target="timeRangeLabel"></span></h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
