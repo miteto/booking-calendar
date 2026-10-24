@@ -1,6 +1,6 @@
 # Calendar & Booking System
 
-A multilingual booking system built with Symfony 8. It allows clients to book time slots and provides an administrative interface for managing slots, bookings, and site settings.
+A multilingual booking system built with Symfony 8.1. It allows clients to book time slots and provides an administrative interface for managing slots, bookings, and site settings.
 
 ## Features
 

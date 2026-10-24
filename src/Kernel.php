@@ -16,4 +16,12 @@ class Kernel extends BaseKernel
             date_default_timezone_set($_envTimezone);
         }
     }
+
+    /**
+     * @return list<string> An array of allowed values for APP_ENV
+     */
+    private function getAllowedEnvs(): array
+    {
+        return ['prod', 'dev', 'test'];
+    }
 }
